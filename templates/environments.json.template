@@ -1,5 +1,5 @@
 {
-  "$schema": "环境注册表 — 由 /ai-lab-test-execute 读取以决定测试目标。Step 6 启动时让用户在 allowedEnvs 中二选一。",
+  "$schema": "环境注册表 — 由 /ai-lab-test-execute 读取以决定测试目标。Step 2（测试执行）启动时让用户在 allowedEnvs 中二选一。",
   "default": "local",
   "allowedEnvs": ["local", "sit"],
   "outOfScope": {

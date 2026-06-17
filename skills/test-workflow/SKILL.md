@@ -1,16 +1,17 @@
 ---
 name: test-workflow
 description: >-
-  AI_LabTest QA 自动化测试主流程（6 步）。当用户要求「为这个项目生成自动化测试」「测试某模块（如登录/订单）」「跑一遍所有测试」「为 X 功能加测试」「做 UI 自动化/端到端测试」「写测试用例并执行」「出测试报告」等测试任务时使用。
-  以 QA 自动化工程师角色，按 代码库分析→需求发现→需求评审→用例设计→AI 实时驱动 Playwright 执行→报告 的强制 6 步顺序工作，四态结果、用户门控、零源码修改、可追溯。
+  AI_LabTest QA 自动化测试主流程（3 步）。当用户要求「为这个项目生成自动化测试」「测试某模块（如登录/订单）」「跑一遍所有测试」「为 X 功能加测试」「做 UI 自动化/端到端测试」「写测试用例并执行」「出测试报告」等测试任务时使用。
+  以 QA 自动化工程师角色，按 用例设计→AI 实时驱动 Playwright 执行→报告 的强制 3 步顺序工作，四态结果、用户门控、零源码修改、可追溯。
   也可由 /ai-lab-test:test-workflow 显式触发。
 ---
 
-# AI_LabTest 主流程（6 步）
+# AI_LabTest 主流程（3 步）
 
 你正在以 **QA 自动化工程师** 角色为本项目生成自动化测试。本技能等价于原框架中由项目根 `CLAUDE.md` 通过 `@AI_LabTest/CLAUDE.md` 注入的 QA 指南 + `/ai-lab-test` 主入口。
 
-> **V0.3**：取消旧「测试脚本生成」步。不再生成 `.spec.ts`、不再 `npx playwright test`。测试用例直接交给 AI——通过 **Playwright MCP** 浏览器工具（`browser_*`，本插件已自动注册）实时驱动浏览器逐条执行、自判四态。流程由 7 步精简为 6 步。
+> **V0.4**：剔除「代码库分析 / 需求分析 / 需求评审」三步。**测试用例设计**直接以用户提供的需求文档或用户直接给的测试用例为输入，不再做代码库扫描、三级回退需求发现、4 维度评审。流程由 6 步精简为 3 步。
+> **V0.3**：取消旧「测试脚本生成」步——不再生成 `.spec.ts`、不再 `npx playwright test`。测试用例直接交给 AI——通过 **Playwright MCP** 浏览器工具（`browser_*`，本插件已自动注册）实时驱动浏览器逐条执行、自判四态。
 
 ---
 
@@ -20,16 +21,12 @@ description: >-
 
 | 文件 | 用途 |
 |---|---|
-| `${CLAUDE_PLUGIN_ROOT}/rules/test-workflow.md` | 6 步主流程与步骤间指针（**先读这个**） |
-| `${CLAUDE_PLUGIN_ROOT}/rules/codebase-analysis.md` | Step 1 代码库分析 |
-| `${CLAUDE_PLUGIN_ROOT}/rules/requirement-discovery.md` | Step 2 需求发现（三级回退） |
-| `${CLAUDE_PLUGIN_ROOT}/rules/requirement-review.md` | Step 3 需求评审（4 维度评分） |
-| `${CLAUDE_PLUGIN_ROOT}/rules/requirement-completeness.md` | Step 3 完整性矩阵 |
-| `${CLAUDE_PLUGIN_ROOT}/rules/test-case-completeness.md` | Step 4 用例完整性 |
-| `${CLAUDE_PLUGIN_ROOT}/rules/test-execution.md` | Step 5 AI 驱动 Playwright + 环境预检 + 四态 |
-| `${CLAUDE_PLUGIN_ROOT}/rules/test-report.md` | Step 6 报告 + §10 经验回写 |
+| `${CLAUDE_PLUGIN_ROOT}/rules/test-workflow.md` | 3 步主流程与步骤间指针（**先读这个**） |
+| `${CLAUDE_PLUGIN_ROOT}/rules/test-case-completeness.md` | Step 1 用例设计 + 完整性矩阵 |
+| `${CLAUDE_PLUGIN_ROOT}/rules/test-execution.md` | Step 2 AI 驱动 Playwright + 环境预检 + 四态 |
+| `${CLAUDE_PLUGIN_ROOT}/rules/test-report.md` | Step 3 报告 + §10 经验回写 |
 
-> **跨文件引用约定**：规则文件之间用**文件名**互相引用（如「见 `test-execution.md §2`」「`rules/test-case-completeness.md §6`」），它们都在 `${CLAUDE_PLUGIN_ROOT}/rules/` 这同一个目录下，按需用 Read 读取即可。`system_knowledge_map.md` 是独立的「系统知识地图」生成器（见 `/ai-lab-test:knowledge-map`），不属于 6 步流程。
+> **跨文件引用约定**：规则文件之间用**文件名**互相引用（如「见 `test-execution.md §2`」「`rules/test-case-completeness.md §6`」），它们都在 `${CLAUDE_PLUGIN_ROOT}/rules/` 这同一个目录下，按需用 Read 读取即可。`system_knowledge_map.md` 是独立的「系统知识地图」生成器（见 `/ai-lab-test:knowledge-map`），不属于 3 步流程。
 
 ---
 
@@ -43,37 +40,42 @@ description: >-
 
 ---
 
-## 强制工作流（6 步）
+## 强制工作流（3 步）
 
-所有测试任务必须严格遵循 `${CLAUDE_PLUGIN_ROOT}/rules/test-workflow.md` 的 6 步流程：
+所有测试任务必须严格遵循 `${CLAUDE_PLUGIN_ROOT}/rules/test-workflow.md` 的 3 步流程：
 
 | 步骤 | 名称 | 用户门控 | 对应命令 | 输出位置（项目内） |
 |---|---|---|---|---|
-| 1 | 代码库分析 | ✅ 确认测试范围 | `/ai-lab-test:analyze` | `AI_LabTest/analysis/codebase-overview.md` |
-| 2 | 需求分析 | ✅ 确认需求清单 | `/ai-lab-test:requirements <模块>` | `AI_LabTest/requirements/{模块}-requirement.md` |
-| 3 | 需求评审 | ✅ 缺口处置 | `/ai-lab-test:review <模块>` | `AI_LabTest/requirements/{模块}-review.json` + 更新需求 |
-| 4 | 测试用例设计 | ✅ 确认用例 | `/ai-lab-test:cases <模块>` | `AI_LabTest/testCase/{模块}-testcase.md` |
-| 5 | 测试执行（AI 实时驱动 Playwright） | ❌ | `/ai-lab-test:execute [模块\|all]` | `AI_LabTest/report/{模块}-{ENV}.run.json` + 证据截图 |
-| 6 | 测试报告 + 经验回写 | ❌ | `/ai-lab-test:report [模块\|all]` | `AI_LabTest/report/{模块}-report-{ENV}-{YYYYMMDD}-{HHMMSS}.md` |
+| 1 | 测试用例设计 | ✅ 确认用例 | `/ai-lab-test:cases <模块>` | `AI_LabTest/testCase/{模块}-testcase.md` |
+| 2 | 测试执行（AI 实时驱动 Playwright） | ❌ | `/ai-lab-test:execute [模块\|all]` | `AI_LabTest/report/{模块}-{ENV}.run.json` + 证据截图 |
+| 3 | 测试报告 + 经验回写 | ❌ | `/ai-lab-test:report [模块\|all]` | `AI_LabTest/report/{模块}-report-{ENV}-{YYYYMMDD}-{HHMMSS}.md` |
 
-**铁律**：禁止跳跃、调换、合并步骤。每个用户门控步骤必须经用户明确确认后方可推进。进入 Step 3 前必须已有 Step 2 产物（存在且非空），进入 Step 5 前必须已有 Step 4 测试用例。
+**铁律**：禁止跳跃、调换、合并步骤。Step 1（用例设计）必须经用户明确确认后方可进入 Step 2。进入 Step 2 前必须已有 Step 1 测试用例（存在且非空）。
+
+---
+
+## 用例设计的输入（V0.4 · 用户驱动）
+
+测试用例设计（Step 1）的输入**只来自用户**，二选一：
+
+1. **用户提供需求文档**：用户给出路径或粘贴需求文本（PRD / 设计稿 / 接口契约等）。AI 据此为「需求 × 维度」逐格设计用例，oracle 标 `功能验证`。
+2. **用户直接提供测试用例**：用户已有现成用例（清单 / 表格 / 描述）。AI 负责结构化、补齐必填字段、对照完整性矩阵核验缺口，不擅自新增未经用户认可的用例。
+
+> 不再做代码库分析、三级回退需求发现（L1/L2/L3）、4 维度需求评审。若用户既没有需求文档也没有现成用例，提示其先提供其一；**不**自行从代码反推需求（避免 AI 自说自话）。
 
 ---
 
 ## 启动行为（作为主流程被调用时）
 
 1. 先 Read `${CLAUDE_PLUGIN_ROOT}/rules/test-workflow.md` 确认全局流程。
-2. 如用户给了模块名，以该模块为本轮范围；否则在 Step 1 询问范围。
+2. 如用户给了模块名，以该模块为本轮范围；否则询问本轮要测的模块。
 3. **首次在本项目跑**：建议先运行 `/ai-lab-test:init` 在项目内创建 `AI_LabTest/` 产物目录、渲染 `AI_LabTest/environments.json`（local 默认 + SIT 占位）、初始化 `AI_LabTest/site-patterns/{domain}.md`。若用户已 init 或已有 `AI_LabTest/`，跳过。
-4. **顺序执行 6 步**（直接执行对应规则逻辑，不必真的转发 slash 命令）：
-   - Step 1 → `${CLAUDE_PLUGIN_ROOT}/rules/codebase-analysis.md`
-   - Step 2 → `${CLAUDE_PLUGIN_ROOT}/rules/requirement-discovery.md`
-   - Step 3 → `${CLAUDE_PLUGIN_ROOT}/rules/requirement-review.md` + `requirement-completeness.md`
-   - Step 4 → `${CLAUDE_PLUGIN_ROOT}/rules/test-case-completeness.md`
-   - Step 5 → `${CLAUDE_PLUGIN_ROOT}/rules/test-execution.md`
-   - Step 6 → `${CLAUDE_PLUGIN_ROOT}/rules/test-report.md`
-5. 每个用户门控步骤暂停，等用户确认后再进入下一步。
-6. Step 6 结束时按 `test-report.md` 第 7 节口头汇报（结果总览 / 风险点 / 测试侧下一步），**禁止以问询式结尾**。
+4. **顺序执行 3 步**（直接执行对应规则逻辑，不必真的转发 slash 命令）：
+   - Step 1 → `${CLAUDE_PLUGIN_ROOT}/rules/test-case-completeness.md`（先向用户索取需求文档或现成用例）
+   - Step 2 → `${CLAUDE_PLUGIN_ROOT}/rules/test-execution.md`
+   - Step 3 → `${CLAUDE_PLUGIN_ROOT}/rules/test-report.md`
+5. Step 1 是用户门控步骤，呈现用例清单、等用户确认后再进入 Step 2。
+6. Step 3 结束时按 `test-report.md` 第 7 节口头汇报（结果总览 / 风险点 / 测试侧下一步），**禁止以问询式结尾**。
 
 ---
 
@@ -107,7 +109,7 @@ description: >-
 - **等待**：用 `browser_wait_for` 等真实信号，不要盲目固定 sleep。
 - **断言**：对照用例「预期结果」判定可观察事实（可见文本 / URL / 元素出现消失 / 列表条数）。
 - **四态**：`pass`（预期全部出现）/ `fail`（预期明确未出现且可复现，疑似应用缺陷）/ `partial`（部分满足）/ `blocked`（前置/路径/登录态/依赖/地址未就绪——**非应用 bug**）。
-- **可追溯**：每条执行结果 → 测试用例 ID（`TC-{模块}-{编号}`）→ 需求维度 → 需求来源（USER / PROJECT_DOC / REVERSE_ENGINEERED）。
+- **可追溯**：每条执行结果 → 测试用例 ID（`TC-{模块}-{编号}`）→ 覆盖维度 → oracle 来源（用户需求文档 / 用户提供用例 / 现状锁定）。
 
 详见 `${CLAUDE_PLUGIN_ROOT}/rules/test-execution.md` §2 决策树 + §3 失败处理铁律。
 
@@ -133,15 +135,12 @@ description: >-
 
 | 命令 | 步骤 | 用户门控 | 主要功能 |
 |---|---|---|---|
-| `/ai-lab-test:test-workflow` | 主入口（= 本技能） | 多次 | 顺序跑完 6 步 |
+| `/ai-lab-test:test-workflow` | 主入口（= 本技能） | 多次 | 顺序跑完 3 步 |
 | `/ai-lab-test:init` | 初始化 | ✅ | 在项目内建 `AI_LabTest/` 目录 + 渲染 environments.json + 初始化 site-patterns |
-| `/ai-lab-test:analyze` | Step 1 | ✅ | 代码库分析，确认范围 |
-| `/ai-lab-test:requirements <模块>` | Step 2 | ✅ | 三级回退发现需求 |
-| `/ai-lab-test:review <模块>` | Step 3 | ✅ | 4 维度评分 + 缺口交互 |
-| `/ai-lab-test:cases <模块>` | Step 4 | ✅ | 设计测试用例 |
-| `/ai-lab-test:execute [模块\|all]` | Step 5 | ❌（仅启动时选环境/范围/模式） | AI 实时驱动 Playwright 执行用例 |
-| `/ai-lab-test:report [模块\|all]` | Step 6 | ❌（终态原则） | 生成报告 + §10 经验回写 |
+| `/ai-lab-test:cases <模块>` | Step 1 | ✅ | 据用户需求文档/现成用例设计测试用例 |
+| `/ai-lab-test:execute [模块\|all]` | Step 2 | ❌（仅启动时选环境/范围/模式） | AI 实时驱动 Playwright 执行用例 |
+| `/ai-lab-test:report [模块\|all]` | Step 3 | ❌（终态原则） | 生成报告 + §10 经验回写 |
 | `/ai-lab-test:status` | 工具 | ❌ | 查看流水线状态 |
-| `/ai-lab-test:knowledge-map` | 附加 | ❌ | 生成《系统知识地图》（独立于 6 步） |
+| `/ai-lab-test:knowledge-map` | 附加 | ❌ | 生成《系统知识地图》（独立于 3 步） |
 
-**使用建议**：新项目首次跑 → 先 `/ai-lab-test:init`，再本主流程或 `/ai-lab-test:analyze`；跑新模块 → 从 `/ai-lab-test:requirements <模块>` 开始；想重跑测试 → 直接 `/ai-lab-test:execute`；不知走到哪 → `/ai-lab-test:status`。
+**使用建议**：新项目首次跑 → 先 `/ai-lab-test:init`，再本主流程或 `/ai-lab-test:cases <模块>`；跑新模块 → 从 `/ai-lab-test:cases <模块>` 开始；想重跑测试 → 直接 `/ai-lab-test:execute`；不知走到哪 → `/ai-lab-test:status`。

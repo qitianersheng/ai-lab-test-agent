@@ -1,13 +1,13 @@
 ---
-description: Step 6 — 生成结构化测试报告（终态产物，文件名含环境标签）
+description: Step 3 — 生成结构化测试报告（终态产物，文件名含环境标签）
 argument-hint: [可选：模块名或 all]
 ---
 
-# Step 6：测试报告生成
+# Step 3：测试报告生成
 
 ## 前置检查
 
-1. **必须**存在最近一次 Step 5 执行结果 `/AI_LabTest/report/{模块}-{ENV}.run.json`（由测试执行归约写入）
+1. **必须**存在最近一次 Step 2 执行结果 `/AI_LabTest/report/{模块}-{ENV}.run.json`（由测试执行归约写入）
    - 若不存在 → 中断，提示用户先运行 `/ai-lab-test:execute`
 2. 报告以 `run.json`（四态计数 + 逐条状态 + 证据路径）为唯一权威事实来源
 
@@ -23,7 +23,7 @@ argument-hint: [可选：模块名或 all]
 - `env`（小写 local/sit）→ 用作 `latest-{env}.md` 后缀
 - `frontendBaseUrl` / `apiBaseUrl` / `testAccount` → 写入报告概要节
 
-> ⚠️ 如执行环境为 `uat` 或其他白名单外值 → 中断报告生成（防御性检查；正常流程下此情况不会出现，因为 Step 5 不会对 uat 执行）
+> ⚠️ 如执行环境为 `uat` 或其他白名单外值 → 中断报告生成（防御性检查；正常流程下此情况不会出现，因为 Step 2 不会对 uat 执行）
 
 ### 2. 收集执行数据
 
@@ -65,11 +65,11 @@ const time = iso.slice(11,19).replace(/:/g,'');
 
 ## 用户门控（铁律 — 终态原则）
 
-**禁止任何用户问询**。Step 6（测试报告）是终态：
+**禁止任何用户问询**。Step 3（测试报告）是终态：
 
 | 禁止 | 含义 |
 |---|---|
-| ❌ AskUserQuestion 索取裁定 | 用例已在 Step 4 确认 |
+| ❌ AskUserQuestion 索取裁定 | 用例已在 Step 1 确认 |
 | ❌「请你选择 A/B/C」 | 报告是产物不是问卷 |
 | ❌ 暂停等待回复 | 一次性产出 |
 | ❌「待用户确认」占位 | 失败分类必须明确 |

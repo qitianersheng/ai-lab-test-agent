@@ -1,12 +1,13 @@
 # AI_LabTest 自动化测试指南
 
-本项目接入了 AI_LabTest 自动化测试框架。Claude Code 在本项目中扮演 **QA 自动化工程师** 角色，遵循 6 步工作流交付自动化测试。
+本项目接入了 AI_LabTest 自动化测试框架。Claude Code 在本项目中扮演 **QA 自动化工程师** 角色，遵循 3 步工作流交付自动化测试。
 
 > 本文件由 AI_LabTest 框架管理，位于 `AI_LabTest/CLAUDE.md`，由项目根 `CLAUDE.md` 通过 `@AI_LabTest/CLAUDE.md` 导入。请勿手工编辑——框架升级会覆盖本文件。项目级约定写到根 `CLAUDE.md`。
 
 > 本指南是入口约束。完整流程与规则定义在 [`rules/`](rules/)。
 
-> **V0.3 变更**：取消旧「测试脚本生成」步。不再生成 `.spec.ts`、不再 `npx playwright test`。测试用例直接交给 AI——通过 **Playwright MCP** 浏览器工具（`browser_*`）实时驱动浏览器逐条执行、自判四态。流程由 7 步精简为 6 步。
+> **V0.4 变更**：剔除「代码库分析 / 需求分析 / 需求评审」三步。测试用例设计直接以用户提供的需求文档或现成用例为输入，流程由 6 步精简为 3 步。
+> **V0.3 变更**：取消旧「测试脚本生成」步。不再生成 `.spec.ts`、不再 `npx playwright test`。测试用例直接交给 AI——通过 **Playwright MCP** 浏览器工具（`browser_*`）实时驱动浏览器逐条执行、自判四态。
 
 ---
 
@@ -19,20 +20,19 @@
 
 ---
 
-## 强制工作流（6 步）
+## 强制工作流（3 步）
 
-所有测试任务必须严格遵循 [`rules/test-workflow.md`](rules/test-workflow.md) 的 6 步流程：
+所有测试任务必须严格遵循 [`rules/test-workflow.md`](rules/test-workflow.md) 的 3 步流程：
 
 | 步骤 | 名称 | 用户门控 |
 |---|---|---|
-| 1 | 代码库分析（[rules/codebase-analysis.md](rules/codebase-analysis.md)） | ✅ |
-| 2 | 需求分析（[rules/requirement-discovery.md](rules/requirement-discovery.md)） | ✅ |
-| 3 | 需求评审（[rules/requirement-review.md](rules/requirement-review.md) + [completeness](rules/requirement-completeness.md)） | ✅ |
-| 4 | 测试用例设计（[rules/test-case-completeness.md](rules/test-case-completeness.md)） | ✅ |
-| 5 | 测试执行 · AI 实时驱动 Playwright（[rules/test-execution.md](rules/test-execution.md)） | ❌ |
-| 6 | 测试报告 + 经验回写（[rules/test-report.md](rules/test-report.md)） | ❌ |
+| 1 | 测试用例设计（[rules/test-case-completeness.md](rules/test-case-completeness.md)） | ✅ |
+| 2 | 测试执行 · AI 实时驱动 Playwright（[rules/test-execution.md](rules/test-execution.md)） | ❌ |
+| 3 | 测试报告 + 经验回写（[rules/test-report.md](rules/test-report.md)） | ❌ |
 
-**铁律**：禁止跳跃、调换、合并步骤。每个用户门控步骤必须经用户明确确认后方可推进。进入步骤 5 前必须已有步骤 4 测试用例。
+**铁律**：禁止跳跃、调换、合并步骤。Step 1（用例设计）必须经用户明确确认后方可推进；进入步骤 2 前必须已有步骤 1 测试用例。
+
+**用例设计输入（V0.4 · 用户驱动）**：测试用例设计只接受用户提供的输入，二选一——① 用户提供的需求文档（PRD / 设计稿 / 接口契约等），或 ② 用户直接给的测试用例。不再做代码库分析、三级回退需求发现、4 维度需求评审；用户两者都没有时，提示其先提供其一，**不**自行从代码反推需求。
 
 ---
 
@@ -42,12 +42,10 @@
 /AI_LabTest
 ├── rules/                  # 规则定义（只读，不要随便改）
 ├── environments.json       # 多环境注册表（local / SIT）
-├── analysis/               # 步骤 1 输出：代码库分析
-├── requirements/           # 步骤 2-3 输出：需求文档 + 评审
-├── testCase/               # 步骤 4 输出：测试用例 Markdown
-├── report/                 # 步骤 5 输出：{模块}-{ENV}.run.json（结构化执行事实）+ 证据截图
-│                           # 步骤 6 输出：测试报告 Markdown（文件名含 ENV）
-└── site-patterns/          # 步骤 6 §10 增量积累的「已验证事实」
+├── testCase/               # 步骤 1 输出：测试用例 Markdown
+├── report/                 # 步骤 2 输出：{模块}-{ENV}.run.json（结构化执行事实）+ 证据截图
+│                           # 步骤 3 输出：测试报告 Markdown（文件名含 ENV）
+└── site-patterns/          # 步骤 3 §10 增量积累的「已验证事实」
 ```
 
 ---
@@ -80,7 +78,7 @@
 - 引擎：**AI 经 Playwright MCP 浏览器工具实时驱动浏览器**（不生成 `.spec.ts`，不跑 `playwright test`）。
 - 浏览器工具：`browser_navigate` / `browser_snapshot` / `browser_click` / `browser_type` / `browser_fill_form` / `browser_select_option` / `browser_wait_for` / `browser_take_screenshot`（由 `@playwright/mcp` 提供，已在项目 `.mcp.json` 注册）。
 - 执行模式：**可见**（弹出有头浏览器窗口，操作肉眼可见）/ **后台**（无头，更快）。
-- 入口：slash 命令 `/ai-lab-test-execute`（或主入口 `/ai-lab-test` 顺序跑到 Step 5）。
+- 入口：slash 命令 `/ai-lab-test-execute`（或主入口 `/ai-lab-test` 顺序跑到 Step 2）。
 - 浏览器二进制：`@playwright/test` / `npx playwright install chromium` 已随安装就绪。
 
 > 如需对接其他执行引擎（Cypress、Selenium 等），请在此节标注并按等价规则适配 `rules/test-execution.md`。
@@ -93,7 +91,7 @@
 - **等待**：用 `browser_wait_for` 等真实信号，不要盲目固定 sleep。
 - **断言**：对照用例「预期结果」判定可观察事实（可见文本 / URL / 元素出现消失 / 列表条数）。
 - **四态**：`pass`（预期全部出现）/ `fail`（预期明确未出现且可复现，疑似应用缺陷）/ `partial`（部分满足）/ `blocked`（前置/路径/登录态/依赖/地址未就绪——非应用 bug）。
-- **可追溯**：每条执行结果 → 测试用例 ID（`TC-{模块}-{编号}`）→ 需求维度 → 需求来源。
+- **可追溯**：每条执行结果 → 测试用例 ID（`TC-{模块}-{编号}`）→ 覆盖维度 → oracle 来源（用户需求文档 / 用户提供用例 / 现状锁定）。
 
 详见 [`rules/test-execution.md`](rules/test-execution.md)。
 
@@ -123,9 +121,9 @@
 当用户要求执行测试任务时（如「测试登录模块」、「跑一遍所有测试」、「为 X 功能加测试」），按以下顺序：
 
 1. 阅读 [`rules/test-workflow.md`](rules/test-workflow.md)
-2. 从步骤 1（代码库分析）开始，**不要跳过**
-3. 在每个用户门控点暂停，等用户确认
-4. 完成步骤 6（报告生成 + 经验回写）并向用户口头汇报结论
+2. 从步骤 1（测试用例设计）开始——先向用户索取需求文档或现成用例，**不要跳过**
+3. 在步骤 1 的用户门控点暂停，等用户确认用例后再进入步骤 2
+4. 完成步骤 3（报告生成 + 经验回写）并向用户口头汇报结论
 
 ---
 
@@ -135,17 +133,14 @@
 
 | 命令 | 步骤 | 用户门控 | 主要功能 |
 |---|---|---|---|
-| `/ai-lab-test` | 主入口 | 多次 | 顺序跑完 6 步 |
-| `/ai-lab-test-analyze` | Step 1 | ✅ | 代码库分析，确认范围 |
-| `/ai-lab-test-requirements <模块>` | Step 2 | ✅ | 三级回退发现需求 |
-| `/ai-lab-test-review <模块>` | Step 3 | ✅ | 4 维度评分 + 缺口交互 |
-| `/ai-lab-test-cases <模块>` | Step 4 | ✅ | 设计测试用例 |
-| `/ai-lab-test-execute [模块\|all]` | Step 5 | ❌（仅启动时选环境/范围/模式） | AI 实时驱动 Playwright 执行用例 |
-| `/ai-lab-test-report [模块\|all]` | Step 6 | ❌（终态原则） | 生成报告 + §10 经验回写 |
+| `/ai-lab-test` | 主入口 | 多次 | 顺序跑完 3 步 |
+| `/ai-lab-test-cases <模块>` | Step 1 | ✅ | 据用户需求文档/现成用例设计测试用例 |
+| `/ai-lab-test-execute [模块\|all]` | Step 2 | ❌（仅启动时选环境/范围/模式） | AI 实时驱动 Playwright 执行用例 |
+| `/ai-lab-test-report [模块\|all]` | Step 3 | ❌（终态原则） | 生成报告 + §10 经验回写 |
 | `/ai-lab-test-status` | 工具 | ❌ | 查看流水线状态 |
 
 **使用建议**：
 - 新项目首次跑：用 `/ai-lab-test` 主入口走完整套流程
-- 跑新模块：从 `/ai-lab-test-requirements <模块>` 开始（复用 Step 1 的分析）
+- 跑新模块：把需求文档或现成用例给到 `/ai-lab-test-cases <模块>`
 - 想重跑测试：直接 `/ai-lab-test-execute`，会问选哪些模块
 - 不知道走到哪：用 `/ai-lab-test-status` 看流水线

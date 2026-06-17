@@ -1,11 +1,11 @@
 ---
-description: 生成《系统知识地图》SYSTEM_KNOWLEDGE_MAP.md（独立于 6 步流程的附加能力）
+description: 生成《系统知识地图》SYSTEM_KNOWLEDGE_MAP.md（独立于 3 步流程的附加能力）
 argument-hint: [可选：输出目录，默认项目根]
 ---
 
 # /ai-lab-test:knowledge-map — 系统知识地图
 
-> 这是 AI_LabTest 自带的一项**附加能力**，**不属于** 6 步测试流程，可独立使用。用于对当前项目做全方位深度解构，产出一份标准化的《系统知识地图》。
+> 这是 AI_LabTest 自带的一项**附加能力**，**不属于** 3 步测试流程，可独立使用。用于对当前项目做全方位深度解构，产出一份标准化的《系统知识地图》。
 
 ## 规则
 

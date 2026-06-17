@@ -98,10 +98,12 @@ TODAY=$(date +%Y-%m-%d)
 ### 6. 创建目录骨架（在目标项目内）
 
 ```bash
-mkdir -p AI_LabTest/{analysis,requirements,testCase,tests,report,site-patterns}
+mkdir -p AI_LabTest/{testCase,tests,report,site-patterns}
 # 模式 B 额外：
 [[ "$MODE" == "B" ]] && mkdir -p AI_LabTest/rules
 ```
+
+> V0.4 起目录骨架不再含 `analysis/`、`requirements/`（代码库分析 / 需求分析 / 需求评审三步已剔除）。用户提供的需求文档为其自有文件，按路径引用即可，无需 AI_LabTest 管理。
 
 ### 7. 渲染 environments.json（不覆盖已有）
 
@@ -133,14 +135,14 @@ mkdir -p AI_LabTest/{analysis,requirements,testCase,tests,report,site-patterns}
 
 仅当 §2 选了**完全复刻原框架**时执行（模式 A 跳过本步）：
 
-1. **复制规则**：把 `${CLAUDE_PLUGIN_ROOT}/rules/`*.md（9 个）复制到 `AI_LabTest/rules/`（覆盖以保持与插件一致）。
+1. **复制规则**：把 `${CLAUDE_PLUGIN_ROOT}/rules/`*.md（5 个：test-workflow / test-case-completeness / test-execution / test-report / system_knowledge_map）复制到 `AI_LabTest/rules/`（覆盖以保持与插件一致）。
 2. **渲染 `AI_LabTest/CLAUDE.md`**（**若已存在则跳过**）：读 `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md.template`，替换 `{{SOURCE_DIRS}}` 为 $SOURCE_DIRS 后写入 `AI_LabTest/CLAUDE.md`。
 3. **根 CLAUDE.md 追加 @import**（不覆盖原内容）：
    - 若项目根 `CLAUDE.md` 存在且已含一行 `@AI_LabTest/CLAUDE.md` → 跳过。
    - 若存在但无该行 → 追加（前面加一行注释 `<!-- AI_LabTest: auto-injected -->`），**原内容一字不动**。
    - 若不存在 → 新建一个只含注释 + `@AI_LabTest/CLAUDE.md` 的文件。
 
-> 模式 B 产物与原 `scripts/install.sh` 逐文件一致；自此该项目即便不显式调用命令，也会因根 `@import` 常驻 QA 角色与 6 步规则（与原框架完全相同的自然语言触发体验）。
+> 模式 B 产物与原 `scripts/install.sh` 逐文件一致（规则集已按 V0.4 精简为 3 步）；自此该项目即便不显式调用命令，也会因根 `@import` 常驻 QA 角色与 3 步规则（与原框架一致的自然语言触发体验）。
 
 ### 12.（可选）playwright.config.ts
 
@@ -148,9 +150,9 @@ V0.3 执行不依赖 spec 文件，本配置仅作「环境白名单」防御性
 
 ### 13. 验证 + 陈述式汇报
 
-- 核验：`AI_LabTest/{analysis,requirements,testCase,tests,report,site-patterns}/` 已建；`AI_LabTest/environments.json` 无残留 `{{...}}`；`AI_LabTest/site-patterns/{domain}.md`、`AI_LabTest/README.md` 已建。
-- 模式 B 额外核验：`AI_LabTest/rules/`（9 个 .md）、`AI_LabTest/CLAUDE.md`（无残留 `{{...}}`）已建；根 `CLAUDE.md` 含 `@AI_LabTest/CLAUDE.md` 一行（原内容保留）。
-- 向用户陈述：✅ 已初始化 `AI_LabTest/` 工作区（模式 A/B）；推断的 7 项 + 用户填的 2 项；下一步「运行 `/ai-lab-test:analyze` 或主流程 `/ai-lab-test:test-workflow` 开始 6 步流程」。**不要**追问「要不要现在开始？」。
+- 核验：`AI_LabTest/{testCase,tests,report,site-patterns}/` 已建；`AI_LabTest/environments.json` 无残留 `{{...}}`；`AI_LabTest/site-patterns/{domain}.md`、`AI_LabTest/README.md` 已建。
+- 模式 B 额外核验：`AI_LabTest/rules/`（5 个 .md）、`AI_LabTest/CLAUDE.md`（无残留 `{{...}}`）已建；根 `CLAUDE.md` 含 `@AI_LabTest/CLAUDE.md` 一行（原内容保留）。
+- 向用户陈述：✅ 已初始化 `AI_LabTest/` 工作区（模式 A/B）；推断的 7 项 + 用户填的 2 项；下一步「运行主流程 `/ai-lab-test:test-workflow` 或 `/ai-lab-test:cases <模块>` 开始 3 步流程」。**不要**追问「要不要现在开始？」。
 
 ## 边界 / 禁止
 

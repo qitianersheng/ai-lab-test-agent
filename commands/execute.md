@@ -1,15 +1,15 @@
 ---
-description: Step 5 — 测试执行（AI 实时驱动 Playwright）。选环境与模式，逐条用例实时执行并判四态
+description: Step 2 — 测试执行（AI 实时驱动 Playwright）。选环境与模式，逐条用例实时执行并判四态
 argument-hint: [可选：模块名或 all]
 ---
 
-# Step 5：测试执行（AI 实时驱动 Playwright）
+# Step 2：测试执行（AI 实时驱动 Playwright）
 
 > **V0.3 变更**：不再有 `.spec.ts`、不再 `npx playwright test`。直接读测试用例，用 Playwright MCP 浏览器工具实时驱动浏览器逐条执行、自判四态。
 
 ## 前置检查
 
-1. `/AI_LabTest/testCase/{模块}-testcase.md` 存在且非空（缺失 → 提示先完成 Step 4）
+1. `/AI_LabTest/testCase/{模块}-testcase.md` 存在且非空（缺失 → 提示先完成 Step 1）
 2. `AI_LabTest/environments.json` 存在（缺失 → 提示先运行 `/ai-lab-test:init`）
 3. Playwright MCP 浏览器工具（`browser_*`）可用（本插件已随附 `playwright` MCP 服务，插件启用即自动注册；若不可用，提示用户确认插件已启用 / 重载插件）
 
@@ -62,7 +62,7 @@ GET `frontendBaseUrl`（有响应即视为站点在跑）：
 ### 5. 落盘结果
 
 把逐条结果写入 `/AI_LabTest/report/{模块}-{ENV}.results.json`（schema 见 test-execution.md §4）；
-归约出的 `/AI_LabTest/report/{模块}-{ENV}.run.json` 是 Step 6 报告的唯一权威事实来源。
+归约出的 `/AI_LabTest/report/{模块}-{ENV}.run.json` 是 Step 3 报告的唯一权威事实来源。
 
 **严禁修改源代码**——执行只在被测系统页面内操作；fail 是事实通报，不放水、不给修复方案。
 
@@ -79,12 +79,12 @@ flaky 可单次重跑 1 次；仍不稳定按事实记录。
 ## 输出
 
 - `/AI_LabTest/report/{模块}-{ENV}.results.json`（AI 落盘逐条结果）
-- `/AI_LabTest/report/{模块}-{ENV}.run.json`（归约四态，供 Step 6）
+- `/AI_LabTest/report/{模块}-{ENV}.run.json`（归约四态，供 Step 3）
 - 证据截图
 
 ## 完成后的提示（陈述式，不问询）
 
-> Step 5 完成于 **{ENV}** 环境（{frontendBaseUrl}）。{N} 条用例，{X} pass / {Y} fail / {P} partial / {B} blocked。
+> Step 2 完成于 **{ENV}** 环境（{frontendBaseUrl}）。{N} 条用例，{X} pass / {Y} fail / {P} partial / {B} blocked。
 > 下一步：运行 `/ai-lab-test:report` 生成 `{module}-report-{ENV}-{YYYYMMDD}-{HHMMSS}.md`。
 
 ## 参数

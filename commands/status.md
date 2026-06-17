@@ -10,27 +10,24 @@ description: 查看 AI_LabTest 流水线状态 — 每个模块走到哪一步
 
 | 目录 | 对应步骤 |
 |---|---|
-| `/AI_LabTest/analysis/codebase-overview.md` | Step 1 完成的标志（含模块清单） |
-| `/AI_LabTest/requirements/{模块}-requirement.md` | Step 2 完成 |
-| `/AI_LabTest/requirements/{模块}-review.json` | Step 3 完成 |
-| `/AI_LabTest/testCase/{模块}-testcase.md` | Step 4 完成 |
-| `/AI_LabTest/report/{模块}-{ENV}.run.json` | Step 5（测试执行）完成 |
-| `/AI_LabTest/report/{模块}-report-*.md` | Step 6（测试报告）完成 |
+| `/AI_LabTest/testCase/{模块}-testcase.md` | Step 1（测试用例设计）完成 |
+| `/AI_LabTest/report/{模块}-{ENV}.run.json` | Step 2（测试执行）完成 |
+| `/AI_LabTest/report/{模块}-report-*.md` | Step 3（测试报告）完成 |
 
 ## 输出格式
 
 呈现表格：
 
 ```
-模块            | S1 | S2 | S3 | S4 | S5 | S6 | 最后报告日期
---------------+----+----+----+----+----+----+-------------
-login         | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 20260525
-navigation-auth | ✅ |    |    |    |    |    | —
-daily-practice | ✅ |    |    |    |    |    | —
+模块            | S1 | S2 | S3 | 最后报告日期
+--------------+----+----+----+-------------
+login         | ✅ | ✅ | ✅ | 20260525
+navigation-auth | ✅ |    |    | —
+daily-practice | ✅ |    |    | —
 ```
 
 底部附建议下一步：
-> 建议下一步：运行 `/ai-lab-test:requirements navigation-auth` 继续 Step 2。
+> 建议下一步：运行 `/ai-lab-test:execute navigation-auth` 进入 Step 2（测试执行）。
 
 ## 禁止
 

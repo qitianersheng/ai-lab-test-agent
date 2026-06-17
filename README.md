@@ -1,6 +1,8 @@
 # AI_LabTest — Claude Code 插件版
 
-把根目录 `framework/` + `commands/` 那套「6 步 QA 自动化测试方法论」打包成一个**可安装的 Claude Code 插件**。方法论本体（`rules/`）随插件分发，9 个 slash 命令 + 1 个自动触发技能驱动整个流程。Playwright MCP 由插件**自动注册**，无需逐项目改 `.mcp.json`。
+把根目录 `framework/` + `commands/` 那套「3 步 QA 自动化测试方法论」打包成一个**可安装的 Claude Code 插件**。方法论本体（`rules/`）随插件分发，6 个 slash 命令 + 1 个自动触发技能驱动整个流程。Playwright MCP 由插件**自动注册**，无需逐项目改 `.mcp.json`。
+
+> **V0.4**：剔除「代码库分析 / 需求分析 / 需求评审」三步。用例设计直接以用户提供的需求文档或现成用例为输入，流程由 6 步精简为 **3 步**（用例设计 → 执行 → 报告）。
 
 > 本插件是对仓库内框架的**等价封装**，不改动 `framework/`、`commands/`、`scripts/`、`app/` 等原有产物。
 
@@ -92,15 +94,14 @@ claude --plugin-dir /绝对路径/ai-lab-test
 | 原框架 | 插件 | 步骤 |
 |---|---|---|
 | `/ai-lab-test`（主入口） | `/ai-lab-test:test-workflow`（技能，亦可自然语言触发） | 主流程 |
-| `/ai-lab-test-analyze` | `/ai-lab-test:analyze` | Step 1 |
-| `/ai-lab-test-requirements` | `/ai-lab-test:requirements` | Step 2 |
-| `/ai-lab-test-review` | `/ai-lab-test:review` | Step 3 |
-| `/ai-lab-test-cases` | `/ai-lab-test:cases` | Step 4 |
-| `/ai-lab-test-execute` | `/ai-lab-test:execute` | Step 5 |
-| `/ai-lab-test-report` | `/ai-lab-test:report` | Step 6 |
+| `/ai-lab-test-cases` | `/ai-lab-test:cases` | Step 1 |
+| `/ai-lab-test-execute` | `/ai-lab-test:execute` | Step 2 |
+| `/ai-lab-test-report` | `/ai-lab-test:report` | Step 3 |
 | `/ai-lab-test-status` | `/ai-lab-test:status` | 工具 |
 | `scripts/install.sh`（项目配置部分）+ `/ai-lab-install` | `/ai-lab-test:init` | 初始化 |
 | `framework/rules/system_knowledge_map.md` | `/ai-lab-test:knowledge-map` | 附加 |
+
+> **V0.4 剔除**：原 `analyze`（代码库分析）/ `requirements`（需求分析）/ `review`（需求评审）三个命令及其规则文件已移除，不再提供。
 
 > **命名说明**：Claude Code 插件命令**强制带命名空间**（`/<插件名>:<命令>`），无法做出裸 `/ai-lab-test`。这是插件机制决定的唯一不可消除差异（见下「差异与限制」）。
 
@@ -111,11 +112,9 @@ claude --plugin-dir /绝对路径/ai-lab-test
 ```text
 # 首次在某项目使用
 /ai-lab-test:init            # 建 AI_LabTest/ 目录 + 渲染 environments.json + 初始化 site-patterns（会问选哪种模式，见下）
-/ai-lab-test:test-workflow   # 顺序走完 6 步（或直接说「帮我测试登录模块」自动触发）
+/ai-lab-test:test-workflow   # 顺序走完 3 步（或直接说「帮我测试登录模块」自动触发）
 
-# 增量补测某模块
-/ai-lab-test:requirements 登录
-/ai-lab-test:review 登录
+# 增量补测某模块（先把需求文档或现成用例给到用例设计步）
 /ai-lab-test:cases 登录
 /ai-lab-test:execute 登录
 /ai-lab-test:report 登录
@@ -124,7 +123,7 @@ claude --plugin-dir /绝对路径/ai-lab-test
 /ai-lab-test:status
 ```
 
-产物仍落在**项目内** `AI_LabTest/`（`analysis/` `requirements/` `testCase/` `report/` `site-patterns/`），目录契约与原框架完全一致。
+产物落在**项目内** `AI_LabTest/`（`testCase/` `report/` `site-patterns/`），V0.4 起不再生成 `analysis/`、`requirements/`（代码库分析 / 需求分析 / 需求评审三步已剔除）。
 
 ---
 
@@ -134,7 +133,7 @@ claude --plugin-dir /绝对路径/ai-lab-test
 |---|---|---|
 | 产物目录 + environments.json + site-patterns + AI_LabTest/README.md + .gitignore | ✅ | ✅ |
 | 规则文件位置 | `${CLAUDE_PLUGIN_ROOT}/rules/`（随插件，按需 Read） | 额外复制到项目 `AI_LabTest/rules/` |
-| `AI_LabTest/CLAUDE.md`（QA 角色 + 6 步入口约束文档） | 不落地（内容已在 `test-workflow` 技能里） | 渲染到项目 `AI_LabTest/CLAUDE.md` |
+| `AI_LabTest/CLAUDE.md`（QA 角色 + 3 步入口约束文档） | 不落地（内容已在 `test-workflow` 技能里） | 渲染到项目 `AI_LabTest/CLAUDE.md` |
 | 项目根 `CLAUDE.md` | **不动** | 追加一行 `@AI_LabTest/CLAUDE.md`（原内容不动） |
 | 自然语言触发 | 技能描述匹配（可靠但非 100% 常驻） | **常驻上下文**，与原框架**完全一致** |
 | 适合 | 想要干净插件、不污染项目 | 想要与原 `install.sh` **逐文件、逐行为一致** |
@@ -157,8 +156,8 @@ plugin/
     ├── skills/
     │   └── test-workflow/
     │       └── SKILL.md           # 主流程 + 自然语言触发（= 原 CLAUDE.md 注入 + /ai-lab-test 主入口）
-    ├── commands/                  # 9 个 slash 命令（analyze/requirements/review/cases/execute/report/status/init/knowledge-map）
-    ├── rules/                     # 方法论本体（9 个 .md，与 framework/rules/ 逐字节一致）
+    ├── commands/                  # 6 个 slash 命令（cases/execute/report/status/init/knowledge-map）
+    ├── rules/                     # 方法论本体（5 个 .md：test-workflow/test-case-completeness/test-execution/test-report/system_knowledge_map）
     ├── site-patterns/_template.md # 站点经验骨架（init 时初始化进项目）
     └── templates/                 # init 时渲染/复制进项目的源文件：
                                    #   environments.json.template / gitignore.snippet / playwright.config.ts.template
@@ -166,7 +165,7 @@ plugin/
                                    #   AI_LabTest-README.md（复制为项目内 AI_LabTest/README.md）
 ```
 
-`rules/` 9 个文件与 `framework/rules/` **逐字节相同**——方法论本体未做任何改写，确保判定标准（四态、用户门控、评分、覆盖矩阵、可追溯、终态原则）完全一致。命令体只做了两处机械改写：① 规则引用路径 `/AI_LabTest/rules/X.md` → `${CLAUDE_PLUGIN_ROOT}/rules/X.md`；② 跨命令引用 `/ai-lab-test-x` → `/ai-lab-test:x`。
+`rules/` 现为 **5 个文件**（V0.4 剔除代码库分析 / 需求分析 / 需求评审三步后，删去 `codebase-analysis.md` / `requirement-discovery.md` / `requirement-review.md` / `requirement-completeness.md`）。保留的判定标准（四态、用户门控、覆盖矩阵、可追溯、终态原则）与原框架一致；命令体按插件机制做了两处机械改写：① 规则引用路径 `/AI_LabTest/rules/X.md` → `${CLAUDE_PLUGIN_ROOT}/rules/X.md`；② 跨命令引用 `/ai-lab-test-x` → `/ai-lab-test:x`。
 
 ---
 
@@ -178,7 +177,7 @@ plugin/
 插件命令强制为 `/ai-lab-test:<name>`，做不出裸 `/ai-lab-test`。功能与产物完全一致，仅调用前缀不同。已在上面对照表与技能里把所有跨命令指引同步成新前缀。
 
 ### 2. 自然语言触发：靠技能描述，而非常驻 CLAUDE.md（机制不同、行为接近）
-原框架靠**安装时**往项目根 `CLAUDE.md` 追加 `@AI_LabTest/CLAUDE.md`，使 QA 角色与 6 步规则**常驻上下文**——只在装过的项目里生效。插件**不能**注入常驻 CLAUDE.md（官方明确：插件根的 `CLAUDE.md` 不作为项目上下文加载）。等价机制是 `test-workflow` **技能**：其 `description` 常驻于上下文，Claude 据此在「测试 X 模块 / 跑测试 / 出报告」等请求上**自动触发**并加载完整流程。
+原框架靠**安装时**往项目根 `CLAUDE.md` 追加 `@AI_LabTest/CLAUDE.md`，使 QA 角色与 3 步规则**常驻上下文**——只在装过的项目里生效。插件**不能**注入常驻 CLAUDE.md（官方明确：插件根的 `CLAUDE.md` 不作为项目上下文加载）。等价机制是 `test-workflow` **技能**：其 `description` 常驻于上下文，Claude 据此在「测试 X 模块 / 跑测试 / 出报告」等请求上**自动触发**并加载完整流程。
 - **行为差异**：技能触发是「模型按描述判断」，不是「规则文本逐字常驻」。对明确的测试请求触发很可靠；对极隐晦的措辞，可能需要显式 `/ai-lab-test:test-workflow`。
 - **作用域差异**：原 `@import` 只在装过的项目生效；插件一旦启用对**所有**项目可用（更广，通常是好事）。
 
@@ -194,7 +193,7 @@ plugin/
 原框架由 `install.sh` 在安装时渲染/复制。插件改为显式 `/ai-lab-test:init`（首个项目跑一次）。渲染逻辑、占位符、默认值推断（7 项）、必填账号（2 项）、`AI_LabTest/README.md` 框架参考文档复制，均与原 `install.sh`/`ai-lab-install.md` 一致。`execute`/`report` 在缺失时也会提示先 init。
 
 ### 6. 项目内 `AI_LabTest/CLAUDE.md` 与根 `CLAUDE.md` —— 默认不落地，模式 B 可完全复刻
-原框架 `install.sh` 会①渲染一份 `AI_LabTest/CLAUDE.md`（QA 角色 + 6 步入口约束，约 8KB）到项目里，并②在项目根 `CLAUDE.md` 追加 `@AI_LabTest/CLAUDE.md` 使其**常驻上下文**。
+原框架 `install.sh` 会①渲染一份 `AI_LabTest/CLAUDE.md`（QA 角色 + 3 步入口约束）到项目里，并②在项目根 `CLAUDE.md` 追加 `@AI_LabTest/CLAUDE.md` 使其**常驻上下文**。
 - **默认（模式 A）**：插件**不**在项目里生成 `AI_LabTest/CLAUDE.md`、**不**改动根 `CLAUDE.md`。该文件的**全部内容**已等价并入 `test-workflow` 技能的 `SKILL.md`——即项目内不再有这个 .md 实体，角色约束改由技能承载（触发机制差异见第 2 条）。
 - **要逐文件 + 常驻上下文完全一致** → `/ai-lab-test:init` 选**模式 B**：它会渲染 `AI_LabTest/CLAUDE.md`、复制规则到 `AI_LabTest/rules/`、并在根 `CLAUDE.md` 追加 `@AI_LabTest/CLAUDE.md`（原内容不动），产出与原 `install.sh` **逐文件相同**的布局与触发体验。
 
@@ -205,4 +204,4 @@ plugin/
 - `scripts/setup-claude-command.sh`、`commands-global/ai-lab-install.md`：是「把安装器注册成全局命令」的引导，插件本身就是分发与安装机制，已由 `/plugin install` + `/ai-lab-test:init` 取代。
 - `app/`：是同一方法论的 **Electron 桌面应用**重写（独立产物线），与 Claude Code 插件无关，不在本次提取范围。
 
-> 除以上 8 点外，6 步流程的**每一个判定细节**（四态决策树、401 熔断阈值 >50%、用户门控触发条件、4 维评分与升级规则、覆盖矩阵符号、oracle/验证性质、数据策略、权限隔离、报告章节与终态禁止事项、§10 经验回写）都来自逐字节一致的 `rules/`，与原框架完全相同。
+> 除以上 8 点外，3 步流程的**每一个判定细节**（四态决策树、401 熔断阈值 >50%、用户门控触发条件、覆盖矩阵符号、oracle/验证性质、数据策略、权限隔离、报告章节与终态禁止事项、§10 经验回写）都来自保留的 `rules/`，判定标准与原框架一致。
