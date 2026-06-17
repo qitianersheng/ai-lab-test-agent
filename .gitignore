@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Claude Code 本地会话状态（worktrees 等，非插件内容）
+.claude/
+
+# 测试产物 / 依赖
+node_modules/
+test-results/
+playwright-report/
+ai-lab-output/
