@@ -8,21 +8,82 @@
 
 ## 安装
 
-### 方式 A — 本地开发直接挂载（最快）
+### 方式 A — 从 GitHub 安装（推荐给所有用户）
 
-```bash
-claude --plugin-dir /绝对路径/plugin/ai-lab-test
-# 改动后无需重启：在会话里 /reload-plugins
-```
-
-### 方式 B — 本地市场安装（最接近正式分发）
+在 Claude Code 会话里依次执行两条命令：
 
 ```text
-/plugin marketplace add /绝对路径/plugin     # plugin/ 下有 .claude-plugin/marketplace.json
+/plugin marketplace add qitianersheng/ai-lab-test-agent
 /plugin install ai-lab-test@ai-lab-test-marketplace
 ```
 
+第 1 条把本仓库注册为「插件市场」（marketplace），第 2 条从该市场安装 `ai-lab-test` 插件（`@` 后面是市场名，不是仓库名）。装完按提示 `/reload-plugins` 或重启即可生效。
+
+> 也可用 CLI 形式（适合脚本/CI）：
+> ```bash
+> claude plugin marketplace add qitianersheng/ai-lab-test-agent
+> claude plugin install ai-lab-test@ai-lab-test-marketplace
+> ```
+
+### 方式 B — 本地市场安装（离线 / 二次开发）
+
+```text
+/plugin marketplace add /绝对路径/ai-lab-test    # 仓库根目录下有 .claude-plugin/marketplace.json
+/plugin install ai-lab-test@ai-lab-test-marketplace
+```
+
+### 方式 C — 本地直接挂载（改插件本身时最快）
+
+```bash
+claude --plugin-dir /绝对路径/ai-lab-test
+# 改动后无需重启：在会话里 /reload-plugins
+```
+
 安装后插件启用，`playwright` MCP 自动注册，命令以 `/ai-lab-test:<name>` 形式出现，`test-workflow` 技能可被自然语言触发。
+
+---
+
+## 更新
+
+插件作者每次 **bump `version` 字段 → 提交 → push** 后，用户可以这样拿到新版本：
+
+### 用户侧 — 手动更新
+
+```text
+/plugin marketplace update ai-lab-test-marketplace   # 从 GitHub 重新拉取市场（含新版本）
+/reload-plugins                                       # 应用变更（或重启 Claude Code）
+```
+
+省略市场名（`/plugin marketplace update`）则刷新全部市场。在 `/plugin` 菜单的 Marketplaces 标签页也能看到/触发更新。
+
+### 用户侧 — 开启自动更新（一次设置，后续无感）
+
+第三方市场默认**不**自动更新。用户在 `/plugin` 菜单的 Marketplaces 标签页把本市场的 auto-update 打开，或在 settings.json 中声明：
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "ai-lab-test-marketplace": {
+      "source": { "source": "github", "repo": "qitianersheng/ai-lab-test-agent" },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "ai-lab-test@ai-lab-test-marketplace": true
+  }
+}
+```
+
+开启后，Claude Code **每次启动**会自动拉取市场并更新已装插件。
+
+### 作者侧 — 发布新版本的标准动作
+
+1. 改代码 / 规则 / 命令。
+2. 把 `.claude-plugin/plugin.json` 里的 `version` 升一级（如 `0.3.0 → 0.4.0`，遵循 semver）。版本以 **plugin.json 为唯一来源**，`marketplace.json` 无需重复维护版本号。
+3. 建议同步更新 `CHANGELOG`（若有）。
+4. `git commit` 后 `git push`。
+
+> Claude Code 通过 `version` 字段的变化判断「有新版本」。只要版本号变了，用户 `/plugin marketplace update` 或自动更新就会拉到新版；版本号不变则视为无更新。
 
 ---
 
