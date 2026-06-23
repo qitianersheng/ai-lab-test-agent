@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(ai-lab-test:*)",
+      "Skill(ai-lab-test:cases)",
+      "Skill(ai-lab-test:execute)",
+      "Skill(ai-lab-test:report)",
+      "Skill(ai-lab-test:init)",
+      "Skill(ai-lab-test:status)",
+      "Skill(ai-lab-test:knowledge-map)"
+    ]
+  }
+}

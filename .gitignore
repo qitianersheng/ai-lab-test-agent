@@ -1,8 +1,10 @@
 # macOS
 .DS_Store
 
-# Claude Code 本地会话状态（worktrees 等，非插件内容）
-.claude/
+# Claude Code 本地会话状态（worktrees / 本地设置等，非插件内容）
+.claude/*
+# 例外：随仓库分发的项目级权限设置（让 clone 后免弹 ai-lab-test 权限框）
+!.claude/settings.json
 
 # 测试产物 / 依赖
 node_modules/

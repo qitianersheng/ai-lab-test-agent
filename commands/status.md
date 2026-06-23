@@ -1,25 +1,25 @@
 ---
-description: 查看 AI_LabTest 流水线状态 — 每个模块走到哪一步
+description: 查看 AI_LabTest 流水线状态 — 每个任务走到哪一步
 ---
 
 # AI_LabTest 流水线状态
 
 ## 任务
 
-扫描以下目录，按模块汇总每个模块当前所处的步骤：
+扫描以下目录，按任务汇总每个任务当前所处的步骤：
 
 | 目录 | 对应步骤 |
 |---|---|
-| `/AI_LabTest/testCase/{模块}-testcase.md` | Step 1（测试用例设计）完成 |
-| `/AI_LabTest/report/{模块}-{ENV}.run.json` | Step 2（测试执行）完成 |
-| `/AI_LabTest/report/{模块}-report-*.md` | Step 3（测试报告）完成 |
+| `/AI_LabTest/testCase/{任务}-testcase.md` | Step 1（测试用例设计）完成 |
+| `/AI_LabTest/report/{任务}-{ENV}.run.json` | Step 2（测试执行）完成 |
+| `/AI_LabTest/report/{任务}-report-*.md` | Step 3（测试报告）完成 |
 
 ## 输出格式
 
 呈现表格：
 
 ```
-模块            | S1 | S2 | S3 | 最后报告日期
+任务            | S1 | S2 | S3 | 最后报告日期
 --------------+----+----+----+-------------
 login         | ✅ | ✅ | ✅ | 20260525
 navigation-auth | ✅ |    |    | —

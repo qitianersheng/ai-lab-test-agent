@@ -98,12 +98,12 @@ TODAY=$(date +%Y-%m-%d)
 ### 6. 创建目录骨架（在目标项目内）
 
 ```bash
-mkdir -p AI_LabTest/{testCase,tests,report,site-patterns}
+mkdir -p AI_LabTest/{testCase,report,site-patterns}
 # 模式 B 额外：
 [[ "$MODE" == "B" ]] && mkdir -p AI_LabTest/rules
 ```
 
-> V0.4 起目录骨架不再含 `analysis/`、`requirements/`（代码库分析 / 需求分析 / 需求评审三步已剔除）。用户提供的需求文档为其自有文件，按路径引用即可，无需 AI_LabTest 管理。
+> V0.4 起目录骨架不再含 `analysis/`、`requirements/`（代码库分析 / 需求分析 / 需求评审三步已剔除）。用户提供的需求文档为其自有文件，按路径引用即可，无需 AI_LabTest 管理。V0.6「依据会话内容生成需求文档」来源的产物落在 `testCase/{任务}-requirement.md`，复用 `testCase/`，仍不单独建 `requirements/`。Step 2 登录态缓存目录 `AI_LabTest/.auth/`（storageState，含 token）**按需创建、已在 `.gitignore` 忽略**，不在此预建。
 
 ### 7. 渲染 environments.json（不覆盖已有）
 
@@ -150,9 +150,9 @@ V0.3 执行不依赖 spec 文件，本配置仅作「环境白名单」防御性
 
 ### 13. 验证 + 陈述式汇报
 
-- 核验：`AI_LabTest/{testCase,tests,report,site-patterns}/` 已建；`AI_LabTest/environments.json` 无残留 `{{...}}`；`AI_LabTest/site-patterns/{domain}.md`、`AI_LabTest/README.md` 已建。
+- 核验：`AI_LabTest/{testCase,report,site-patterns}/` 已建；`AI_LabTest/environments.json` 无残留 `{{...}}`；`AI_LabTest/site-patterns/{domain}.md`、`AI_LabTest/README.md` 已建。
 - 模式 B 额外核验：`AI_LabTest/rules/`（5 个 .md）、`AI_LabTest/CLAUDE.md`（无残留 `{{...}}`）已建；根 `CLAUDE.md` 含 `@AI_LabTest/CLAUDE.md` 一行（原内容保留）。
-- 向用户陈述：✅ 已初始化 `AI_LabTest/` 工作区（模式 A/B）；推断的 7 项 + 用户填的 2 项；下一步「运行主流程 `/ai-lab-test:test-workflow` 或 `/ai-lab-test:cases <模块>` 开始 3 步流程」。**不要**追问「要不要现在开始？」。
+- 向用户陈述：✅ 已初始化 `AI_LabTest/` 工作区（模式 A/B）；推断的 7 项 + 用户填的 2 项；下一步「运行主流程 `/ai-lab-test:test-workflow` 或 `/ai-lab-test:cases` 开始 3 步流程（任务名由用例设计步自动生成，无需录入）」。**不要**追问「要不要现在开始？」。
 
 ## 边界 / 禁止
 
